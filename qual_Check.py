@@ -94,10 +94,11 @@ def check_directory(directory, output_dir):
             results[flac_file] = analyze_flac(flac_file, output_dir, pixel_log_file)
             if not results[flac_file]['high_freq_content']:
                 failed_log_file.write(f"{os.path.basename(flac_file)}\n")
+                print(f"Track failed high frequency content check: {os.path.basename(flac_file)}")  # Debug output
 
     # Write results to analysis log file
     analysis_log_file_path = os.path.join(output_dir, 'analysis_log.txt')
-    with open(analysis_log_file_path, 'w', encoding='utf-8') as analysis_log_file:
+    with open(analysis_log_file_path, 'w', encoding='utf-8') as analysis_log_file, open(failed_log_file_path, 'a', encoding='utf-8') as failed_log_file:
         for file, analysis in results.items():
             if analysis:
                 analysis_log_file.write(f"{os.path.basename(file)}:\n")
@@ -122,6 +123,7 @@ def check_directory(directory, output_dir):
                 analysis_log_file.write(f"  Passes Checks: {'Yes' if passes_checks else 'No'}\n")
                 
                 if not passes_checks:
+                    failed_log_file.write(f"{os.path.basename(file)}\n")
                     analysis_log_file.write("  Fails on:\n")
                     if analysis.get('bit_rate', 0) <= 220:
                         analysis_log_file.write("    - Bit Rate is less than or equal to 220 kbps\n")
